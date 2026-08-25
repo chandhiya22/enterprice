@@ -1,0 +1,73 @@
+name: Enterprise System CI/CD Pipeline
+
+on:
+  push:
+    branches:
+      - main
+  workflow_dispatch:
+
+jobs:
+  # ---------------------------------------------------
+  # JOB 1: Build & Deploy Order Service to ACA
+  # ---------------------------------------------------
+  deploy-order-service:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v4
+
+      - name: Azure Login
+        uses: azure/login@v1
+        with:
+          creds: ${{ secrets.AZURE_CREDENTIALS }}
+
+      - name: Build & Deploy Order Service
+        uses: azure/container-apps-deploy-action@v1
+        with:
+          acrName: acrchandhiya123
+          containerAppName: order-service
+          resourceGroup: rg-chandhiya-invoice
+          dockerfilePath: order-service/Dockerfile
+          appSourcePath: order-service
+
+  # ---------------------------------------------------
+  # JOB 2: Build & Deploy Invoice Service to ACA
+  # ---------------------------------------------------
+  deploy-invoice-service:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v4
+
+      - name: Azure Login
+        uses: azure/login@v1
+        with:
+          creds: ${{ secrets.AZURE_CREDENTIALS }}
+
+      - name: Build & Deploy Invoice Service
+        uses: azure/container-apps-deploy-action@v1
+        with:
+          acrName: acrchandhiya123
+          containerAppName: invoice-service
+          resourceGroup: rg-chandhiya-invoice
+          dockerfilePath: invoice-service/Dockerfile
+          appSourcePath: invoice-service
+
+  # ---------------------------------------------------
+  # JOB 3: Deploy Non-Containerized Frontend
+  # ---------------------------------------------------
+  deploy-frontend:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v4
+
+      - name: Deploy Frontend to Azure Static Web Apps
+        uses: Azure/static-web-apps-deploy@v1
+        with:
+          azure_static_web_apps_api_token: ${{ secrets.AZURE_STATIC_WEB_APPS_API_TOKEN }}
+          repo_token: ${{ secrets.GITHUB_TOKEN }}
+          action: "upload"
+          app_location: "/frontend"
+          api_location: ""
+          output_location: ""
