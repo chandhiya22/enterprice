@@ -18,10 +18,20 @@ jobs:
         with:
           creds: ${{ secrets.AZURE_CREDENTIALS }}
 
+      - name: Get ACR Credentials
+        id: acr-creds
+        run: |
+          USERNAME=$(az acr credential show --name acrchandhiya123 --query "username" -o tsv)
+          PASSWORD=$(az acr credential show --name acrchandhiya123 --query "passwords[0].value" -o tsv)
+          echo "username=$USERNAME" >> $GITHUB_OUTPUT
+          echo "password=$PASSWORD" >> $GITHUB_OUTPUT
+
       - name: Build & Deploy Order Service
         uses: azure/container-apps-deploy-action@v1
         with:
           acrName: acrchandhiya123
+          acrUsername: ${{ steps.acr-creds.outputs.username }}
+          acrPassword: ${{ steps.acr-creds.outputs.password }}
           containerAppName: order-service
           resourceGroup: rg-resumeiq
           containerAppEnvironment: env-resumeiq
@@ -39,10 +49,20 @@ jobs:
         with:
           creds: ${{ secrets.AZURE_CREDENTIALS }}
 
+      - name: Get ACR Credentials
+        id: acr-creds
+        run: |
+          USERNAME=$(az acr credential show --name acrchandhiya123 --query "username" -o tsv)
+          PASSWORD=$(az acr credential show --name acrchandhiya123 --query "passwords[0].value" -o tsv)
+          echo "username=$USERNAME" >> $GITHUB_OUTPUT
+          echo "password=$PASSWORD" >> $GITHUB_OUTPUT
+
       - name: Build & Deploy Invoice Service
         uses: azure/container-apps-deploy-action@v1
         with:
           acrName: acrchandhiya123
+          acrUsername: ${{ steps.acr-creds.outputs.username }}
+          acrPassword: ${{ steps.acr-creds.outputs.password }}
           containerAppName: invoice-service
           resourceGroup: rg-resumeiq
           containerAppEnvironment: env-resumeiq
