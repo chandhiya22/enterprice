@@ -23,7 +23,8 @@ jobs:
         with:
           acrName: acrchandhiya123
           containerAppName: order-service
-          resourceGroup: rg-chandhiya-invoice
+          resourceGroup: rg-resumeiq
+          containerAppEnvironment: env-resumeiq
           appSourcePath: ${{ github.workspace }}/order_service
           dockerfilePath: Dockerfile
 
@@ -43,7 +44,8 @@ jobs:
         with:
           acrName: acrchandhiya123
           containerAppName: invoice-service
-          resourceGroup: rg-chandhiya-invoice
+          resourceGroup: rg-resumeiq
+          containerAppEnvironment: env-resumeiq
           appSourcePath: ${{ github.workspace }}/invoice_service
           dockerfilePath: Dockerfile
 
