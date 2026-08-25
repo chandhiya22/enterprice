@@ -38,7 +38,7 @@ jobs:
           appSourcePath: ${{ github.workspace }}/order_service
           dockerfilePath: Dockerfile
           ingress: external
-          targetPort: "80"
+          targetPort: 80
 
   deploy-invoice-service:
     runs-on: ubuntu-latest
@@ -71,7 +71,7 @@ jobs:
           appSourcePath: ${{ github.workspace }}/invoice_service
           dockerfilePath: Dockerfile
           ingress: external
-          targetPort: "80"
+          targetPort: 80
 
   deploy-frontend:
     runs-on: ubuntu-latest
@@ -88,5 +88,4 @@ jobs:
           app_location: "frontend"
           api_location: ""
           output_location: ""
-          app_artifact_location: "frontend"
           skip_app_build: true
