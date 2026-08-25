@@ -37,6 +37,8 @@ jobs:
           containerAppEnvironment: env-resumeiq
           appSourcePath: ${{ github.workspace }}/order_service
           dockerfilePath: Dockerfile
+          ingress: external
+          targetPort: 80
 
   deploy-invoice-service:
     runs-on: ubuntu-latest
@@ -68,6 +70,8 @@ jobs:
           containerAppEnvironment: env-resumeiq
           appSourcePath: ${{ github.workspace }}/invoice_service
           dockerfilePath: Dockerfile
+          ingress: external
+          targetPort: 80
 
   deploy-frontend:
     runs-on: ubuntu-latest
