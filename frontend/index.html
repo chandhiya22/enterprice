@@ -1,0 +1,81 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Enterprise Order Portal</title>
+  <style>
+    body { font-family: Arial, sans-serif; background: #0f172a; color: #f8fafc; margin: 0; padding: 2rem; }
+    .container { max-width: 500px; margin: 0 auto; background: #1e293b; padding: 2rem; border-radius: 8px; }
+    h2 { color: #38bdf8; margin-top: 0; }
+    label { display: block; margin-top: 1rem; color: #94a3b8; }
+    input { width: 100%; padding: 0.6rem; margin-top: 0.3rem; border-radius: 4px; border: 1px solid #334155; background: #0f172a; color: #fff; box-sizing: border-box; }
+    button { width: 100%; margin-top: 1.5rem; padding: 0.8rem; background: #38bdf8; border: none; font-weight: bold; color: #0f172a; border-radius: 4px; cursor: pointer; }
+    .status { margin-top: 1rem; padding: 0.8rem; border-radius: 4px; display: none; }
+    .success { background: #065f46; color: #a7f3d0; }
+    .error { background: #991b1b; color: #fecaca; }
+  </style>
+</head>
+<body>
+
+  <div class="container">
+    <h2>Place New Order</h2>
+    <form id="orderForm">
+      <label for="orderId">Order ID</label>
+      <input type="text" id="orderId" placeholder="ORD-1001" required />
+
+      <label for="customerName">Customer Name</label>
+      <input type="text" id="customerName" placeholder="Chandhiya" required />
+
+      <label for="item">Item Description</label>
+      <input type="text" id="item" placeholder="Azure Architecture Consultation" required />
+
+      <label for="amount">Amount ($)</label>
+      <input type="number" id="amount" placeholder="250" required />
+
+      <button type="submit">Submit Order</button>
+    </form>
+
+    <div id="statusBox" class="status"></div>
+  </div>
+
+  <script>
+    // Replace with your external Order Service Container App URL
+    const ORDER_SERVICE_URL = "https://<YOUR_ORDER_SERVICE_URL>.azurecontainerapps.io/orders";
+
+    document.getElementById('orderForm').addEventListener('submit', async (e) => {
+      e.preventDefault();
+      const statusBox = document.getElementById('statusBox');
+      
+      const payload = {
+        order_id: document.getElementById('orderId').value,
+        customer_name: document.getElementById('customerName').value,
+        item: document.getElementById('item').value,
+        amount: parseFloat(document.getElementById('amount').value)
+      };
+
+      try {
+        const response = await fetch(ORDER_SERVICE_URL, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(payload)
+        });
+
+        const data = await response.json();
+
+        if (response.ok) {
+          statusBox.className = "status success";
+          statusBox.innerText = `Success: ${data.message}`;
+        } else {
+          statusBox.className = "status error";
+          statusBox.innerText = `Error: ${data.error || 'Failed to submit order'}`;
+        }
+      } catch (err) {
+        statusBox.className = "status error";
+        statusBox.innerText = `Network Error: ${err.message}`;
+      }
+      statusBox.style.display = "block";
+    });
+  </script>
+</body>
+</html>
