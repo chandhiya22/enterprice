@@ -88,4 +88,5 @@ jobs:
           app_location: "frontend"
           api_location: ""
           output_location: ""
-          skip_app_build: "true"
+          app_artifact_location: "frontend"
+          skip_app_build: true
