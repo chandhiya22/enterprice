@@ -40,8 +40,8 @@
   </div>
 
   <script>
-    // Replace with your external Order Service Container App URL
-const ORDER_SERVICE_URL = "https://order-service.ambitiousgrass-ba5c5464.centralindia.azurecontainerapps.io/orders";
+    const ORDER_SERVICE_URL = "https://order-service.ambitiousgrass-ba5c5464.centralindia.azurecontainerapps.io/orders";
+    
     document.getElementById('orderForm').addEventListener('submit', async (e) => {
       e.preventDefault();
       const statusBox = document.getElementById('statusBox');
@@ -49,7 +49,7 @@ const ORDER_SERVICE_URL = "https://order-service.ambitiousgrass-ba5c5464.central
       const payload = {
         order_id: document.getElementById('orderId').value,
         customer_name: document.getElementById('customerName').value,
-        item: document.getElementById('item').value,
+        description: document.getElementById('item').value,
         amount: parseFloat(document.getElementById('amount').value)
       };
 
@@ -60,14 +60,19 @@ const ORDER_SERVICE_URL = "https://order-service.ambitiousgrass-ba5c5464.central
           body: JSON.stringify(payload)
         });
 
+        const contentType = response.headers.get("content-type");
+        if (!contentType || !contentType.includes("application/json")) {
+          throw new Error(`Server returned non-JSON response (Status ${response.status})`);
+        }
+
         const data = await response.json();
 
         if (response.ok) {
           statusBox.className = "status success";
-          statusBox.innerText = `Success: ${data.message}`;
+          statusBox.innerText = `Success: ${data.message || 'Order submitted successfully!'}`;
         } else {
           statusBox.className = "status error";
-          statusBox.innerText = `Error: ${data.error || 'Failed to submit order'}`;
+          statusBox.innerText = `Error: ${data.error || data.message || 'Failed to submit order'}`;
         }
       } catch (err) {
         statusBox.className = "status error";
