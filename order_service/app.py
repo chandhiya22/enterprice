@@ -61,7 +61,7 @@ def create_order():
     return jsonify({
         "status": "Order Accepted",
         "order_id": order_id,
-        "message": "Order processed successfully."
+        "message": "State persisted and event published to Service Bus."
     }), 201
 
 if __name__ == '__main__':
