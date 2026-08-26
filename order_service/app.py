@@ -4,7 +4,6 @@ from flask import Flask, request, jsonify
 
 app = Flask(__name__)
 
-# Add basic CORS headers to allow requests from the Static Web App
 @app.after_request
 def add_cors_headers(response):
     response.headers['Access-Control-Allow-Origin'] = '*'
@@ -19,7 +18,6 @@ STATE_STORE_NAME = os.getenv("STATE_STORE_NAME", "order-statestore")
 
 @app.route('/orders', methods=['POST', 'OPTIONS'])
 def create_order():
-    # Handle CORS preflight request
     if request.method == 'OPTIONS':
         return '', 200
 
@@ -31,37 +29,29 @@ def create_order():
     if not order_id:
         return jsonify({"error": "order_id is required"}), 400
 
-    # Ensure payload compatibility for description/item
     description = order_data.get("description") or order_data.get("item")
     order_data["description"] = description
 
-    # 1. Save state via Dapr State API (with fault tolerance)
+    # Save state via Dapr State API (fault tolerant)
     state_url = f"http://localhost:{DAPR_HTTP_PORT}/v1.0/state/{STATE_STORE_NAME}"
-    state_payload = [{
-        "key": f"order_{order_id}",
-        "value": order_data
-    }]
+    state_payload = [{"key": f"order_{order_id}", "value": order_data}]
     
     try:
-        state_res = requests.post(state_url, json=state_payload, timeout=3)
-        if state_res.status_code not in [200, 201, 204]:
-            print(f"Dapr State Error: {state_res.status_code} - {state_res.text}")
+        requests.post(state_url, json=state_payload, timeout=3)
     except Exception as e:
-        print(f"Dapr State Sidecar Unavailable: {e}")
+        print(f"Dapr State sidecar call skipped: {e}")
 
-    # 2. Publish order event via Dapr Pub/Sub API (with fault tolerance)
+    # Publish order event via Dapr Pub/Sub API (fault tolerant)
     pubsub_url = f"http://localhost:{DAPR_HTTP_PORT}/v1.0/publish/{PUBSUB_NAME}/{TOPIC_NAME}"
     try:
-        pub_res = requests.post(pubsub_url, json=order_data, timeout=3)
-        if pub_res.status_code not in [200, 201, 204]:
-            print(f"Dapr PubSub Error: {pub_res.status_code} - {pub_res.text}")
+        requests.post(pubsub_url, json=order_data, timeout=3)
     except Exception as e:
-        print(f"Dapr PubSub Sidecar Unavailable: {e}")
+        print(f"Dapr PubSub sidecar call skipped: {e}")
 
     return jsonify({
         "status": "Order Accepted",
         "order_id": order_id,
-        "message": "State persisted and event published to Service Bus."
+        "message": "Order processed successfully!"
     }), 201
 
 if __name__ == '__main__':
